@@ -6,8 +6,6 @@ namespace Encrypt_POS_Script_Password;
 
 public class FileEncryptor
 {
-   
-
     private readonly byte[] key = new byte[0]
     {
         // Key byte array   to encrypt password 
