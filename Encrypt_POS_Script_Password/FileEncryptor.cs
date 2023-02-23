@@ -5,7 +5,7 @@ namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor
 {
-    private readonly string drive;
+    private readonly string drives;
     private readonly byte[] iv;
     private readonly byte[] key;
 
