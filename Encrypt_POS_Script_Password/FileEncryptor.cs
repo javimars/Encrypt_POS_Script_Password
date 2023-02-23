@@ -20,9 +20,9 @@ public class FileEncryptor
 
     public void EncryptPasswordInPOSIniFiles(string drive)
     {
-        string[] files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
 
-        foreach (string file in files)
+        foreach (var file in files)
         {
             EncryptPasswordInFile(file);
         }
@@ -30,9 +30,9 @@ public class FileEncryptor
 
     public void DecryptPasswordInPOSIniFiles(string drive)
     {
-        string[] files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
 
-        foreach (string file in files)
+        foreach (var file in files)
         {
             DecryptPasswordInFile(file);
         }
@@ -40,17 +40,17 @@ public class FileEncryptor
 
     private void EncryptPasswordInFile(string filePath)
     {
-        string fileContent = File.ReadAllText(filePath);
-        string pattern = @"(?<=Password=).*?(?=\[Micros Settings\])";
-        Match match = Regex.Match(fileContent, pattern, RegexOptions.Singleline);
+        var fileContent = File.ReadAllText(filePath);
+        var pattern = @"(?<=Password=).*?(?=\[Micros Settings\])";
+        var match = Regex.Match(fileContent, pattern, RegexOptions.Singleline);
 
         if (match.Success)
         {
-            string password = match.Value.Trim();
-            byte[] encryptedPassword = EncryptStringToBytes_Aes(password);
+            var password = match.Value.Trim();
+            var encryptedPassword = EncryptStringToBytes_Aes(password);
 
-            string encryptedPasswordString = Convert.ToBase64String(encryptedPassword);
-            string newFileContent = Regex.Replace(fileContent, pattern, encryptedPasswordString);
+            var encryptedPasswordString = Convert.ToBase64String(encryptedPassword);
+            var newFileContent = Regex.Replace(fileContent, pattern, encryptedPasswordString);
 
             File.WriteAllText(filePath, newFileContent);
         }
@@ -58,17 +58,17 @@ public class FileEncryptor
 
     private void DecryptPasswordInFile(string filePath)
     {
-        string fileContent = File.ReadAllText(filePath);
-        string pattern = @"(?<=Password=).*?(?=\[Micros Settings\])";
-        Match match = Regex.Match(fileContent, pattern, RegexOptions.Singleline);
+        var fileContent = File.ReadAllText(filePath);
+        var pattern = @"(?<=Password=).*?(?=\[Micros Settings\])";
+        var match = Regex.Match(fileContent, pattern, RegexOptions.Singleline);
 
         if (match.Success)
         {
-            string encryptedPasswordString = match.Value.Trim();
-            byte[] encryptedPassword = Convert.FromBase64String(encryptedPasswordString);
-            string password = DecryptStringFromBytes_Aes(encryptedPassword);
+            var encryptedPasswordString = match.Value.Trim();
+            var encryptedPassword = Convert.FromBase64String(encryptedPasswordString);
+            var password = DecryptStringFromBytes_Aes(encryptedPassword);
 
-            string newFileContent = Regex.Replace(fileContent, pattern, password);
+            var newFileContent = Regex.Replace(fileContent, pattern, password);
 
             File.WriteAllText(filePath, newFileContent);
         }
@@ -78,18 +78,18 @@ public class FileEncryptor
     {
         byte[] encrypted;
 
-        using (Aes aesAlg = Aes.Create())
+        using (var aesAlg = Aes.Create())
         {
             aesAlg.Key = key;
             aesAlg.IV = iv;
 
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+            var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            using (MemoryStream msEncrypt = new MemoryStream())
+            using (var msEncrypt = new MemoryStream())
             {
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                 {
-                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    using (var swEncrypt = new StreamWriter(csEncrypt))
                     {
                         swEncrypt.Write(plainText);
                     }
@@ -106,18 +106,18 @@ public class FileEncryptor
     {
         string plaintext = null;
 
-        using (Aes aesAlg = Aes.Create())
+        using (var aesAlg = Aes.Create())
         {
             aesAlg.Key = key;
             aesAlg.IV = iv;
 
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+            var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-            using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+            using (var msDecrypt = new MemoryStream(cipherText))
             {
-                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                 {
-                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    using (var srDecrypt = new StreamReader(csDecrypt))
                     {
                         plaintext = srDecrypt.ReadToEnd();
                     }
