@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace Encrypt_POS_Script_Password;
 
-public partial class FileEncryptor
+public partial class FileEncryptor : IDisposable
 {
-    private readonly string drive;
     private readonly byte[] iv;
     private readonly byte[] key;
+    private string drive;
 
     public FileEncryptor(string _drive)
     {
@@ -27,13 +27,18 @@ public partial class FileEncryptor
         }
     }
 
+    public void Dispose()
+    {
+        drive = null;
+    }
+
 
     public void EncryptPasswordInPOSIniFiles()
     {
         try
         {
-            var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
-            foreach (var file in files) EncryptPasswordInFile(file);
+            var di = new DirectoryInfo(drive);
+            foreach (var fi in di.EnumerateFiles("POS-Setup.ini")) EncryptPasswordInFile(fi.FullName);
         }
         catch (Exception e)
         {
@@ -46,10 +51,7 @@ public partial class FileEncryptor
     {
         var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
 
-        foreach (var file in files)
-        {
-            DecryptPasswordInFile(file);
-        }
+        foreach (var file in files) DecryptPasswordInFile(file);
     }
 
     private void EncryptPasswordInFile(string filePath)
