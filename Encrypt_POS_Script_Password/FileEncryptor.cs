@@ -27,7 +27,6 @@ public partial class FileEncryptor
         }
     }
 
-    public string folder { get; set; }
 
     public void EncryptPasswordInPOSIniFiles()
     {
