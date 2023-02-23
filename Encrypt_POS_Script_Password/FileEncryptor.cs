@@ -40,6 +40,7 @@ public partial class FileEncryptor
         }
     }
 
+
     public void DecryptPasswordInPOSIniFiles(string drive)
     {
         var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
