@@ -5,11 +5,13 @@ namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor
 {
+    private readonly string drive;
     private readonly byte[] iv;
     private readonly byte[] key;
 
-    public FileEncryptor()
+    public FileEncryptor(string _drive)
     {
+        drive = _drive;
         // Generate a new 256-bit key
         using (var aes = Aes.Create())
         {
@@ -25,13 +27,16 @@ public partial class FileEncryptor
         }
     }
 
-    public void EncryptPasswordInPOSIniFiles(string drive)
+    public void EncryptPasswordInPOSIniFiles()
     {
-        var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
-
-        foreach (var file in files)
+        try
         {
-            EncryptPasswordInFile(file);
+            var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
+            foreach (var file in files) EncryptPasswordInFile(file);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 
