@@ -5,35 +5,35 @@ namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor : IDisposable
 {
-    private readonly byte[] iv;
-    private readonly byte[] key;
-    private string? drive;
+    private readonly byte[] _iv;
+    private readonly byte[] _key;
+    private string? _drive;
 
-    public FileEncryptor(string _drive)
+    public FileEncryptor(string drive)
     {
-        drive = _drive;
+        _drive = drive;
         // Generate a new 256-bit key
         using (var aes = Aes.Create())
         {
             aes.KeySize = 256;
-            key = aes.Key;
+            _key = aes.Key;
         }
 
         // Generate a new 128-bit IV
         using (var aes = Aes.Create())
         {
             aes.KeySize = 128;
-            iv = aes.IV;
+            _iv = aes.IV;
         }
     }
 
     public void Dispose()
     {
-        drive = null;
+        _drive = null;
     }
 
 
-    public void EncryptPasswordInPOSIniFiles()
+    public void EncryptPasswordInPosIniFiles()
     {
         var di = new DirectoryInfo(@"H:\");
         foreach (var directory in di.EnumerateDirectories())
@@ -46,7 +46,7 @@ public partial class FileEncryptor : IDisposable
     }
 
 
-    public void DecryptPasswordInPOSIniFiles(string drive)
+    public void DecryptPasswordInPosIniFiles(string drive)
     {
         var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
 
@@ -88,8 +88,8 @@ public partial class FileEncryptor : IDisposable
     private byte[] EncryptStringToBytes_Aes(string plainText)
     {
         using var aesAlg = Aes.Create();
-        aesAlg.Key = key;
-        aesAlg.IV = iv;
+        aesAlg.Key = _key;
+        aesAlg.IV = _iv;
 
         var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
@@ -110,8 +110,8 @@ public partial class FileEncryptor : IDisposable
         string plaintext = null;
 
         using var aesAlg = Aes.Create();
-        aesAlg.Key = key;
-        aesAlg.IV = iv;
+        aesAlg.Key = _key;
+        aesAlg.IV = _iv;
 
         var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
