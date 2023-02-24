@@ -5,13 +5,32 @@ namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor : IDisposable
 {
-    private readonly byte[] _iv;
-    private readonly byte[] _key;
-    private string? _drive;
+    private static string? _drive;
+
+    private byte[] _iv;
+    private byte[] _key;
 
     public FileEncryptor(string drive)
     {
+        DirArray = Array.Empty<DirectoryInfo>();
         _drive = drive;
+        DicStack = SearchDirectory();
+
+
+        CreateKey();
+    }
+
+    public Stack<DirectoryInfo> DicStack { get; }
+
+    public DirectoryInfo[] DirArray { get; private set; }
+
+    public void Dispose()
+    {
+        _drive = null;
+    }
+
+    private void CreateKey()
+    {
         // Generate a new 256-bit key
         using (var aes = Aes.Create())
         {
@@ -27,21 +46,48 @@ public partial class FileEncryptor : IDisposable
         }
     }
 
-    public void Dispose()
+    public Stack<DirectoryInfo> SearchDirectory()
     {
-        _drive = null;
+        var tempStack = new Stack<DirectoryInfo>();
+        var dirStack = new Stack<DirectoryInfo>();
+        // Add your initial directory to the stack.
+        dirStack.Push(new DirectoryInfo(_drive));
+
+        // While there are directories on the stack to be processed...
+        while (dirStack.Count > 0)
+        {
+            // Set the current directory and remove it from the stack.
+            var current = dirStack.Pop();
+
+            // Get all the directories in the current directory.
+            foreach (var d in current.GetDirectories())
+                // Only add a directory to the stack if it is not a system directory.
+                if ((d.Attributes & FileAttributes.System & d.Root.Attributes & FileAttributes.System) !=
+                    FileAttributes.System)
+                {
+                    dirStack.Push(d);
+                    tempStack.Push(d);
+                }
+        }
+
+
+        DirArray = tempStack.ToArray();
+        return tempStack;
     }
 
-
-    public void EncryptPasswordInPosIniFiles()
+    public void EncryptPasswordInPosIniFiles(DirectoryInfo[] drive)
     {
-        var di = new DirectoryInfo(@"H:\");
-        foreach (var directory in di.EnumerateDirectories())
+        foreach (var directory in drive)
         {
-            if ((directory.Attributes & FileAttributes.System) == FileAttributes.System) continue;
-
-            foreach (var fi in di.EnumerateFiles("POS-Setup.ini", SearchOption.AllDirectories))
-                EncryptPasswordInFile(fi.FullName);
+            /*
+            foreach (var dir in directory)
+            {
+                
+            }
+            
+                foreach (var fi in di.EnumerateFiles("POS-Setup.ini", SearchOption.AllDirectories))
+                    EncryptPasswordInFile(fi.FullName);
+                    */
         }
     }
 

@@ -6,13 +6,9 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        var di = new FileEncryptor(@"e:\");
+        di.SearchDirectory();
+        di.EncryptPasswordInPosIniFiles(di.DirArray);
+        Console.ReadLine();
     }
-
-    // using (var encryptor = new FileEncryptor("e:\\"))
-    // {
-    //     encryptor.EncryptPasswordInPOSIniFiles();
-    // }
-
-
-    //var path = Console.ReadLine();
 }
