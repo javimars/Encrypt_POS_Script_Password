@@ -35,14 +35,13 @@ public partial class FileEncryptor : IDisposable
 
     public void EncryptPasswordInPOSIniFiles()
     {
-        try
+        var di = new DirectoryInfo(@"H:\");
+        foreach (var directory in di.EnumerateDirectories())
         {
-            var di = new DirectoryInfo(drive);
-            foreach (var fi in di.EnumerateFiles("POS-Setup.ini")) EncryptPasswordInFile(fi.FullName);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
+            if ((directory.Attributes & FileAttributes.System) == FileAttributes.System) continue;
+
+            foreach (var fi in di.EnumerateFiles("POS-Setup.ini", SearchOption.AllDirectories))
+                EncryptPasswordInFile(fi.FullName);
         }
     }
 
