@@ -7,7 +7,7 @@ public partial class FileEncryptor : IDisposable
 {
     private readonly byte[] iv;
     private readonly byte[] key;
-    private string drive;
+    private string? drive;
 
     public FileEncryptor(string _drive)
     {
