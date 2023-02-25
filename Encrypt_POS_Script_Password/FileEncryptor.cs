@@ -5,20 +5,22 @@ namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor : IDisposable
 {
-    internal static string _drive;
-    private List<string> _filePaths;
-
+    private static string _drive;
     private byte[] _iv;
     private byte[] _key;
 
     public FileEncryptor(string drive)
     {
         _drive = drive;
-        _filePaths = SearchDirectoryReturnFilePath();
+        FilePath = SearchDirectoryReturnFilePath();
 
 
         CreateKey();
     }
+
+    public List<string> FilePath { get; }
+
+    public static Regex Pattern { get; } = new(@"(?<=Password=)[\s\S]*?(?=\[Micros Settings\])");
 
 
     public void Dispose()
@@ -43,7 +45,7 @@ public partial class FileEncryptor : IDisposable
         }
     }
 
-    public List<string> SearchDirectoryReturnFilePath()
+    public static List<string> SearchDirectoryReturnFilePath()
     {
         var filePath = new List<string>();
         try
@@ -64,19 +66,23 @@ public partial class FileEncryptor : IDisposable
     }
 
 
-    public void EncryptPasswordInPosIniFiles(DirectoryInfo[] drive)
+    public void EncryptPasswordInPosIniFiles(List<string> FilePaths)
     {
-        foreach (var directory in drive)
+        foreach (var filePath in FilePaths)
         {
-            /*
-            foreach (var dir in directory)
+            var fileContent = File.ReadAllText(filePath);
+            var match = Pattern.Match(fileContent);
+            if (!match.Success)
             {
-                
+                return;
             }
-            
-                foreach (var fi in di.EnumerateFiles("POS-Setup.ini", SearchOption.AllDirectories))
-                    EncryptPasswordInFile(fi.FullName);
-                    */
+
+            var password = match.Value.Trim();
+            var encryptedPassword = EncryptStringToBytes_Aes(password);
+            var encryptedPasswordString = Convert.ToBase64String(encryptedPassword);
+            var newFileContent = MyRegex3().Replace(fileContent, encryptedPasswordString);
+
+            File.WriteAllText(filePath, newFileContent);
         }
     }
 

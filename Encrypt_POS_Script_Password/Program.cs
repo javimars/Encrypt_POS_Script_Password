@@ -7,8 +7,8 @@ public class Program
     public static void Main(string[] args)
     {
         var di = new FileEncryptor(@"e:\");
-        di.SearchDirectoryReturnFilePath();
-        // di.EncryptPasswordInPosIniFiles(di.DirArray);
+        FileEncryptor.SearchDirectoryReturnFilePath();
+        di.EncryptPasswordInPosIniFiles(di.FilePath);
         Console.ReadLine();
     }
 }
