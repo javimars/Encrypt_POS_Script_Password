@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace Encrypt_POS_Script_Password;
@@ -14,9 +15,10 @@ public partial class FileEncryptor : IDisposable
     {
         DirArray = Array.Empty<DirectoryInfo>();
         _drive = drive;
-        DicStack = SearchDirectory();
+        //DicStack = SearchDirectory();
 
 
+        // CleanUpStack(DicStack);
         CreateKey();
     }
 
@@ -46,8 +48,29 @@ public partial class FileEncryptor : IDisposable
         }
     }
 
+    public List<string> SearchDirectoryReturnFilePath()
+    {
+        var filePath = new List<string>();
+        try
+        {
+            var txtFiles = Directory.EnumerateFiles(_drive, "POS-Setup.ini", new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                AttributesToSkip = FileAttributes.System,
+                IgnoreInaccessible = true
+            });
+            foreach (var currentFile in txtFiles) filePath.Add(currentFile);
+        }
+        catch (Exception e)
+        {
+        }
+
+        return filePath;
+    }
+
     public Stack<DirectoryInfo> SearchDirectory()
     {
+        var filePath = new Stack();
         var tempStack = new Stack<DirectoryInfo>();
         var dirStack = new Stack<DirectoryInfo>();
         // Add your initial directory to the stack.
@@ -65,8 +88,10 @@ public partial class FileEncryptor : IDisposable
                 if ((d.Attributes & FileAttributes.System & d.Root.Attributes & FileAttributes.System) !=
                     FileAttributes.System)
                 {
+                    var files = current.GetFiles("POS-Setup.ini", SearchOption.TopDirectoryOnly);
                     dirStack.Push(d);
                     tempStack.Push(d);
+                    filePath.Push(files);
                 }
         }
 
@@ -74,6 +99,21 @@ public partial class FileEncryptor : IDisposable
         DirArray = tempStack.ToArray();
         return tempStack;
     }
+
+
+    private static Stack<DirectoryInfo> CleanUpStack(Stack<DirectoryInfo> directoryInfoStack)
+    {
+        var tempStack = new Stack<DirectoryInfo>(directoryInfoStack.Reverse());
+
+
+        foreach (var directoryInfo in directoryInfoStack)
+        {
+        }
+
+
+        return tempStack;
+    }
+
 
     public void EncryptPasswordInPosIniFiles(DirectoryInfo[] drive)
     {
