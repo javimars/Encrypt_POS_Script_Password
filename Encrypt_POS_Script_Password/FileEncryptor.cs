@@ -1,30 +1,25 @@
-﻿using System.Collections;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncryptor : IDisposable
 {
-    private static string? _drive;
+    internal static string _drive;
+    private List<string> _filePaths;
 
     private byte[] _iv;
     private byte[] _key;
 
     public FileEncryptor(string drive)
     {
-        DirArray = Array.Empty<DirectoryInfo>();
         _drive = drive;
-        //DicStack = SearchDirectory();
+        _filePaths = SearchDirectoryReturnFilePath();
 
 
-        // CleanUpStack(DicStack);
         CreateKey();
     }
 
-    public Stack<DirectoryInfo> DicStack { get; }
-
-    public DirectoryInfo[] DirArray { get; private set; }
 
     public void Dispose()
     {
@@ -66,52 +61,6 @@ public partial class FileEncryptor : IDisposable
         }
 
         return filePath;
-    }
-
-    public Stack<DirectoryInfo> SearchDirectory()
-    {
-        var filePath = new Stack();
-        var tempStack = new Stack<DirectoryInfo>();
-        var dirStack = new Stack<DirectoryInfo>();
-        // Add your initial directory to the stack.
-        dirStack.Push(new DirectoryInfo(_drive));
-
-        // While there are directories on the stack to be processed...
-        while (dirStack.Count > 0)
-        {
-            // Set the current directory and remove it from the stack.
-            var current = dirStack.Pop();
-
-            // Get all the directories in the current directory.
-            foreach (var d in current.GetDirectories())
-                // Only add a directory to the stack if it is not a system directory.
-                if ((d.Attributes & FileAttributes.System & d.Root.Attributes & FileAttributes.System) !=
-                    FileAttributes.System)
-                {
-                    var files = current.GetFiles("POS-Setup.ini", SearchOption.TopDirectoryOnly);
-                    dirStack.Push(d);
-                    tempStack.Push(d);
-                    filePath.Push(files);
-                }
-        }
-
-
-        DirArray = tempStack.ToArray();
-        return tempStack;
-    }
-
-
-    private static Stack<DirectoryInfo> CleanUpStack(Stack<DirectoryInfo> directoryInfoStack)
-    {
-        var tempStack = new Stack<DirectoryInfo>(directoryInfoStack.Reverse());
-
-
-        foreach (var directoryInfo in directoryInfoStack)
-        {
-        }
-
-
-        return tempStack;
     }
 
 
