@@ -5,9 +5,9 @@ namespace Encrypt_POS_Script_Password;
 
 public class EncryptHelper
 {
-    private static readonly string PasswordHash = "Cb0rd123!";
-    private static readonly string SaltKey = "S@LT&KEY";
-    private static readonly string VIKey = "@1B2c3D4e5F6g7H8";
+    private const string PasswordHash = "Cb0rd123!";
+    private const string SaltKey = "S@LT&KEY";
+    private const string VIKey = "@1B2c3D4e5F6g7H8";
 
     public static string Encrypt(string plainText)
     {
@@ -41,9 +41,9 @@ public class EncryptHelper
         var keyBytes = new Rfc2898DeriveBytes(PasswordHash, Encoding.ASCII.GetBytes(SaltKey)).GetBytes(256 / 8);
         var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC, Padding = PaddingMode.None };
 
-        var decryptor = symmetricKey.CreateDecryptor(keyBytes, Encoding.ASCII.GetBytes(VIKey));
+        var decrypt = symmetricKey.CreateDecryptor(keyBytes, Encoding.ASCII.GetBytes(VIKey));
         var memoryStream = new MemoryStream(cipherTextBytes);
-        var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+        var cryptoStream = new CryptoStream(memoryStream, decrypt, CryptoStreamMode.Read);
         var plainTextBytes = new byte[cipherTextBytes.Length];
 
         var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
