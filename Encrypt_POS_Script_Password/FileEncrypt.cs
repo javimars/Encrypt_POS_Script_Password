@@ -1,12 +1,9 @@
-﻿using System.Security.Cryptography;
-using System.Text.RegularExpressions;
+﻿namespace Encrypt_POS_Script_Password;
 
-namespace Encrypt_POS_Script_Password;
-
-public class FileEncrypt : IDisposable
+public partial class FileEncrypt : IDisposable
 {
-    // [GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"",RegexOptions.IgnoreCase,100)]
-    private static Regex _regexPattern = new Regex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"");
+    //[GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", RegexOptions.IgnoreCase, 100)]
+    //public static partial Regex RegexPattern();
 
     private static string? _drive;
     private byte[]? Iv { get; set; }
@@ -68,20 +65,18 @@ public class FileEncrypt : IDisposable
         return filePath;
     }
 
-    public void EncryptPasswordInPosIniFiles(List<string> FilePaths)
-    {
-        foreach (var filePath in FilePaths)
-        {
-            var fileContent = File.ReadAllText(filePath);
-            var match = _regexPattern.Match(fileContent);
-            if (!match.Success)
-            {
-                return;
-            }
+    //public void EncryptPasswordInPosIniFiles(IEnumerable<string> filePaths)
+    //{
+    //    foreach (var match in filePaths.Select(File.ReadAllText).Select(fileContent => RegexPattern.Match(fileContent)))
+    //    {
+    //        if (!match.Success)
+    //        {
+    //            return;
+    //        }
 
-            var password = match.Value.Trim();
-        }
-    }
+    //        var password = match.Value.Trim();
+    //    }
+    //}
 
     /*
     public void DecryptPasswordInPosIniFiles(string drive)

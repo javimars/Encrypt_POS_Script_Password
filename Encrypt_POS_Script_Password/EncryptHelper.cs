@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace Encrypt_POS_Script_Password;
+﻿namespace Encrypt_POS_Script_Password;
 
 public class EncryptHelper
 {
