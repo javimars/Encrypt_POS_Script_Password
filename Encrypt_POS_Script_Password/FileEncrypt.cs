@@ -3,24 +3,24 @@ using System.Text.RegularExpressions;
 
 namespace Encrypt_POS_Script_Password;
 
-public partial class FileEncryptor : IDisposable
+public class FileEncrypt : IDisposable
 {
-    private static readonly Regex _pattern = MyRegex();
-    private static string _drive;
-    private byte[] _iv;
-    private byte[] _key;
+    // [GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"",RegexOptions.IgnoreCase,100)]
+    private static Regex _regexPattern = new Regex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"");
 
-    public FileEncryptor(string drive)
+    private static string? _drive;
+    private byte[]? Iv { get; set; }
+    private byte[]? Key { get; set; }
+
+    public FileEncrypt(string? drive)
     {
         _drive = drive;
         FilePath = SearchDirectoryReturnFilePath();
 
-
         CreateKey();
     }
 
-    public List<string> FilePath { get; }
-
+    private List<string> FilePath { get; }
 
     public void Dispose()
     {
@@ -33,14 +33,14 @@ public partial class FileEncryptor : IDisposable
         using (var aes = Aes.Create())
         {
             aes.KeySize = 256;
-            _key = aes.Key;
+            Key = aes.Key;
         }
 
         // Generate a new 128-bit IV
         using (var aes = Aes.Create())
         {
             aes.KeySize = 128;
-            _iv = aes.IV;
+            Iv = aes.IV;
         }
     }
 
@@ -49,42 +49,39 @@ public partial class FileEncryptor : IDisposable
         var filePath = new List<string>();
         try
         {
-            var txtFiles = Directory.EnumerateFiles(_drive, "POS-Setup.ini", new EnumerationOptions
+            if (_drive != null)
             {
-                RecurseSubdirectories = true,
-                AttributesToSkip = FileAttributes.System,
-                IgnoreInaccessible = true
-            });
-            filePath.AddRange(txtFiles);
+                var txtFiles = Directory.EnumerateFiles(_drive, "POS-Setup.ini", new EnumerationOptions
+                {
+                    RecurseSubdirectories = true,
+                    AttributesToSkip = FileAttributes.System,
+                    IgnoreInaccessible = true
+                });
+                filePath.AddRange(txtFiles);
+            }
         }
         catch (Exception e)
         {
+            // ignored
         }
 
         return filePath;
     }
 
-
-    /*public void EncryptPasswordInPosIniFiles(List<string> FilePaths)
+    public void EncryptPasswordInPosIniFiles(List<string> FilePaths)
     {
         foreach (var filePath in FilePaths)
         {
             var fileContent = File.ReadAllText(filePath);
-            var match = Pattern.Match(fileContent);
+            var match = _regexPattern.Match(fileContent);
             if (!match.Success)
             {
                 return;
             }
 
             var password = match.Value.Trim();
-            var encryptedPassword = EncryptStringToBytes_Aes(password);
-            var encryptedPasswordString = Convert.ToBase64String(encryptedPassword);
-            var newFileContent = MyRegex3().Replace(fileContent, encryptedPasswordString);
-
-            File.WriteAllText(filePath, newFileContent);
         }
-    }*/
-
+    }
 
     /*
     public void DecryptPasswordInPosIniFiles(string drive)
@@ -110,7 +107,4 @@ public partial class FileEncryptor : IDisposable
 
         File.WriteAllText(filePath, newFileContent);
     }*/
-
-    [GeneratedRegex("(?<=Password=).*?(?=\\[Micros Settings\\])")]
-    private static partial Regex MyRegex();
 }

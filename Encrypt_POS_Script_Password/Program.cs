@@ -6,8 +6,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var di = new FileEncryptor(@"e:\");
-        FileEncryptor.SearchDirectoryReturnFilePath();
+        var di = new FileEncrypt(@"e:\");
+        FileEncrypt.SearchDirectoryReturnFilePath();
 
         Console.ReadLine();
     }

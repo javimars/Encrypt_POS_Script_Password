@@ -2,12 +2,12 @@
 
 public static class StackExtensions
 {
-    public static Stack<T> Clone1<T>(this Stack<T> original)
+    public static Stack<T> Clone1<T>(this IEnumerable<T> original)
     {
         return new Stack<T>(new Stack<T>(original));
     }
 
-    public static Stack<T> Clone2<T>(this Stack<T> original)
+    public static Stack<T> Clone2<T>(this IEnumerable<T> original)
     {
         return new Stack<T>(original.Reverse());
     }

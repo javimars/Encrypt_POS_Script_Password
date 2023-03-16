@@ -7,21 +7,22 @@ public class EncryptHelper
 {
     private const string PasswordHash = "Cb0rd123!";
     private const string SaltKey = "S@LT&KEY";
-    private const string VIKey = "@1B2c3D4e5F6g7H8";
+    private const string ViKey = "@1B2c3D4e5F6g7H8";
 
+    [Obsolete("Obsolete")]
     public static string Encrypt(string plainText)
     {
         var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
 
         var keyBytes = new Rfc2898DeriveBytes(PasswordHash, Encoding.ASCII.GetBytes(SaltKey)).GetBytes(256 / 8);
         var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC, Padding = PaddingMode.Zeros };
-        var encryptor = symmetricKey.CreateEncryptor(keyBytes, Encoding.ASCII.GetBytes(VIKey));
+        var encrypt = symmetricKey.CreateEncryptor(keyBytes, Encoding.ASCII.GetBytes(ViKey));
 
         byte[] cipherTextBytes;
 
         using (var memoryStream = new MemoryStream())
         {
-            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+            using (var cryptoStream = new CryptoStream(memoryStream, encrypt, CryptoStreamMode.Write))
             {
                 cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
                 cryptoStream.FlushFinalBlock();
@@ -35,13 +36,14 @@ public class EncryptHelper
         return Convert.ToBase64String(cipherTextBytes);
     }
 
+    [Obsolete("Obsolete")]
     public static string Decrypt(string encryptedText)
     {
         var cipherTextBytes = Convert.FromBase64String(encryptedText);
         var keyBytes = new Rfc2898DeriveBytes(PasswordHash, Encoding.ASCII.GetBytes(SaltKey)).GetBytes(256 / 8);
         var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC, Padding = PaddingMode.None };
 
-        var decrypt = symmetricKey.CreateDecryptor(keyBytes, Encoding.ASCII.GetBytes(VIKey));
+        var decrypt = symmetricKey.CreateDecryptor(keyBytes, Encoding.ASCII.GetBytes(ViKey));
         var memoryStream = new MemoryStream(cipherTextBytes);
         var cryptoStream = new CryptoStream(memoryStream, decrypt, CryptoStreamMode.Read);
         var plainTextBytes = new byte[cipherTextBytes.Length];
