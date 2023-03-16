@@ -8,6 +8,7 @@ public class Program
     {
         var di = new FileEncrypt(@"e:\");
         FileEncrypt.SearchDirectoryReturnFilePath();
+        //FileEncrypt.EncryptPasswordInPosIniFiles();
 
         Console.ReadLine();
     }
