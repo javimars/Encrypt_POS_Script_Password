@@ -2,15 +2,7 @@
 
 public partial class FileEncrypt : IDisposable
 {
-    //[GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", RegexOptions.IgnoreCase, 100)]
-
-    private static Regex RegexPattern =>
-        new Regex(pattern: "\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", options:
-            RegexOptions.IgnoreCase, matchTimeout: new TimeSpan(0, 0, 20));
-
     private static string? _drive;
-    private byte[]? Iv { get; set; }
-    private byte[]? Key { get; set; }
 
     public FileEncrypt(string? drive)
     {
@@ -27,20 +19,21 @@ public partial class FileEncrypt : IDisposable
         _drive = null;
     }
 
-    private void CreateKey()
+    [GeneratedRegex(pattern: "\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", options: RegexOptions.IgnoreCase)]
+    private static partial Regex RegexPattern();
+
+    private static void CreateKey()
     {
         // Generate a new 256-bit key
         using (var aes = Aes.Create())
         {
             aes.KeySize = 256;
-            Key = aes.Key;
         }
 
         // Generate a new 128-bit IV
         using (var aes = Aes.Create())
         {
             aes.KeySize = 128;
-            Iv = aes.IV;
         }
     }
 
@@ -70,7 +63,8 @@ public partial class FileEncrypt : IDisposable
 
     public static void EncryptPasswordInPosIniFiles(IEnumerable<string> filePaths)
     {
-        foreach (var match in filePaths.Select(File.ReadAllText).Select(fileContent => RegexPattern.Match(fileContent)))
+        foreach (var match in filePaths.Select(File.ReadAllText)
+                     .Select(fileContent => RegexPattern().Match(fileContent)))
         {
             if (!match.Success)
             {
