@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Encrypt_POS_Script_Password"
   ],
-  "SelectedNode": "\\Encrypt_POS_Script_Password.sln",
+  "SelectedNode": "\\Encrypt_POS_Script_Password\\StackExtensions.cs",
   "PreviewInSolutionExplorer": false
 }
