@@ -1,4 +1,6 @@
-﻿namespace Encrypt_POS_Script_Password;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncrypt : IDisposable
 {
@@ -6,21 +8,38 @@ public partial class FileEncrypt : IDisposable
 
     public FileEncrypt(string? drive)
     {
-        _drive = drive;
+        Drive = drive;
         FilePath = SearchDirectoryReturnFilePath();
 
         CreateKey();
     }
 
+    [DisallowNull]
+    private static string? Drive
+    {
+        get => _drive;
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(value));
+            _drive = value;
+        }
+    }
+
     private List<string> FilePath { get; }
+
+    #region IDisposable Members
 
     public void Dispose()
     {
-        _drive = null;
+        Drive = null;
     }
 
-    [GeneratedRegex(pattern: "\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", options: RegexOptions.IgnoreCase)]
+    #endregion
+
+    [GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", RegexOptions.IgnoreCase)]
     private static partial Regex RegexPattern();
+
 
     private static void CreateKey()
     {
@@ -42,9 +61,9 @@ public partial class FileEncrypt : IDisposable
         var filePath = new List<string>();
         try
         {
-            if (_drive != null)
+            if (Drive != null)
             {
-                var txtFiles = Directory.EnumerateFiles(_drive, "POS-Setup.ini", new EnumerationOptions
+                var txtFiles = Directory.EnumerateFiles(Drive, "POS-Setup.ini", new EnumerationOptions
                 {
                     RecurseSubdirectories = true,
                     AttributesToSkip = FileAttributes.System,
@@ -66,10 +85,7 @@ public partial class FileEncrypt : IDisposable
         foreach (var match in filePaths.Select(File.ReadAllText)
                      .Select(fileContent => RegexPattern().Match(fileContent)))
         {
-            if (!match.Success)
-            {
-                return;
-            }
+            if (!match.Success) return;
 
             var password = match.Value.Trim();
         }
