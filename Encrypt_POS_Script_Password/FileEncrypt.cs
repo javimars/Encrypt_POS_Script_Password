@@ -47,7 +47,7 @@ public partial class FileEncrypt : IDisposable
 
     [GeneratedRegex(@"(?<=UserName=cbordsim
 Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
-    private static partial Regex RegexPattern();
+    private static partial Regex RegexPatternPassword();
 
 
     private static void CreateKey()
@@ -107,7 +107,7 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
     {
         foreach (var fileContent in filePaths.Select(File.ReadAllText))
         {
-            var match = RegexPattern().Match(fileContent);
+            var match = RegexPatternPassword().Match(fileContent);
             if (!match.Success) return null;
 
             Password = match.Value.TrimEnd();
