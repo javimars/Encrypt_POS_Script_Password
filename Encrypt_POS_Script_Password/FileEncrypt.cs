@@ -17,7 +17,7 @@ public partial class FileEncrypt : IDisposable
     public static POS_Setup_ini_Contents PosSetupIniContents { get; private set; }
 
 
-    public List<POS_Setup_ini_Contents> PosSetupIniContentsList { get; set; } = new();
+    public static List<POS_Setup_ini_Contents> PosSetupIniContentsList { get; set; } = new();
 
 
     public static string Password { get; set; }
@@ -78,19 +78,26 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
                     AttributesToSkip = FileAttributes.System,
                     IgnoreInaccessible = true
                 });
-                PosSetupIniContents = new POS_Setup_ini_Contents
-                {
-                    FolderName = null!,
-                    FolderNamePath = txtFiles.ToString(),
-                    FileContent = null!,
-                    CurrentPassword = null
-                };
+
                 filePath.AddRange(txtFiles);
             }
         }
         catch (Exception e)
         {
             // ignored
+        }
+
+        foreach (var fp in filePath)
+        {
+            PosSetupIniContents = new POS_Setup_ini_Contents
+            {
+                FolderName = fp,
+                FolderNamePath = fp,
+                FileContent = null,
+                CurrentPassword = null,
+                NewPassword = null
+            };
+            PosSetupIniContentsList.Add(PosSetupIniContents);
         }
 
         return filePath;
