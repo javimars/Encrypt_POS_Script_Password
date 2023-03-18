@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Encrypt_POS_Script_Password;
+﻿namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncrypt : IDisposable
 {
@@ -12,7 +10,17 @@ public partial class FileEncrypt : IDisposable
         FilePath = SearchDirectoryReturnFilePath();
 
         CreateKey();
+        FindPassword(FilePath);
     }
+
+    public static POS_Setup_ini_Contents PosSetupIniContents { get; set; } = new()
+    {
+        FileContent = null,
+        CurrentPassword = null
+    };
+
+
+    public static string Password { get; set; }
 
     [DisallowNull]
     private static string? Drive
@@ -26,18 +34,19 @@ public partial class FileEncrypt : IDisposable
         }
     }
 
-    private List<string> FilePath { get; }
+    private static List<string> FilePath { get; set; }
 
     #region IDisposable Members
 
     public void Dispose()
     {
-        Drive = null;
+        Drive = null!;
     }
 
     #endregion
 
-    [GeneratedRegex("\"(?<=Password=).*?(?=\\\\[Micros Settings\\\\])\"", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?<=UserName=cbordsim
+Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
     private static partial Regex RegexPattern();
 
 
@@ -80,15 +89,18 @@ public partial class FileEncrypt : IDisposable
         return filePath;
     }
 
-    public static void EncryptPasswordInPosIniFiles(IEnumerable<string> filePaths)
+    public static string FindPassword(IEnumerable<string> filePaths)
     {
-        foreach (var match in filePaths.Select(File.ReadAllText)
-                     .Select(fileContent => RegexPattern().Match(fileContent)))
+        foreach (var fileContent in filePaths.Select(File.ReadAllText))
         {
-            if (!match.Success) return;
+            var match = RegexPattern().Match(fileContent);
+            if (!match.Success) return null;
 
-            var password = match.Value.Trim();
+            Password = match.Value.TrimEnd();
         }
+
+
+        return Password;
     }
 
     /*
