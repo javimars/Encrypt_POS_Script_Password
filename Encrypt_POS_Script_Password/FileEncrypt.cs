@@ -89,14 +89,10 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
 
         foreach (var fp in filePath)
         {
-            PosSetupIniContents = new POS_Setup_ini_Contents
-            {
-                FolderName = fp,
-                FolderNamePath = fp,
-                FileContent = null,
-                CurrentPassword = null,
-                NewPassword = null
-            };
+            PosSetupIniContents = new POS_Setup_ini_Contents(fp);
+
+            PosSetupIniContents.SetFolderName();
+            PosSetupIniContents.LoadFileContent();
             PosSetupIniContentsList.Add(PosSetupIniContents);
         }
 
