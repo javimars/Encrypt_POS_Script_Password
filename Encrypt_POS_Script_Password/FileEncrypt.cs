@@ -38,6 +38,7 @@ public partial class FileEncrypt : IDisposable
 
     #region IDisposable Members
 
+    /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
     public void Dispose()
     {
         Drive = null!;
@@ -93,6 +94,7 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
 
             PosSetupIniContents.SetFolderName();
             PosSetupIniContents.LoadFileContent();
+            PosSetupIniContents.CurrentPassword = FindPassword(new[] { fp });
             PosSetupIniContentsList.Add(PosSetupIniContents);
         }
 
