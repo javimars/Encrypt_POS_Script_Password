@@ -1,9 +1,11 @@
-﻿namespace Encrypt_POS_Script_Password;
+﻿using static System.GC;
+
+namespace Encrypt_POS_Script_Password;
 
 public partial class FileEncrypt : IDisposable
 {
     private static string? _drive;
-
+    private bool _disposed;
 
     public FileEncrypt(string? drive)
     {
@@ -11,7 +13,7 @@ public partial class FileEncrypt : IDisposable
         FilePath = SearchDirectoryReturnFilePath();
 
         CreateKey();
-        FindPassword(FilePath);
+        //FindPassword(FilePath);
     }
 
     public static POS_Setup_ini_Contents PosSetupIniContents { get; private set; }
@@ -40,10 +42,17 @@ public partial class FileEncrypt : IDisposable
 
     public void Dispose()
     {
-        Drive = null!;
+        Dispose(true);
+        SuppressFinalize(this);
     }
 
     #endregion
+
+    public void Deconstruct(out bool disposed)
+    {
+        disposed = _disposed;
+    }
+
 
     [GeneratedRegex(@"(?<=UserName=cbordsim
 Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
@@ -65,7 +74,7 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
         }
     }
 
-    public static List<string> SearchDirectoryReturnFilePath()
+    private static List<string> SearchDirectoryReturnFilePath()
     {
         var filePath = new List<string>();
         try
@@ -93,13 +102,14 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
 
             PosSetupIniContents.SetFolderName();
             PosSetupIniContents.LoadFileContent();
+            PosSetupIniContents.CurrentPassword = FindPassword(new[] { fp });
             PosSetupIniContentsList.Add(PosSetupIniContents);
         }
 
         return filePath;
     }
 
-    public static string FindPassword(IEnumerable<string> filePaths)
+    private static string FindPassword(IEnumerable<string> filePaths)
     {
         foreach (var fileContent in filePaths.Select(File.ReadAllText))
         {
@@ -113,28 +123,34 @@ Password=)(.*?)*(?=\[Micros Settings\])", RegexOptions.Singleline)]
         return Password;
     }
 
-    /*
-    public void DecryptPasswordInPosIniFiles(string drive)
-    {
-        var files = Directory.GetFiles(drive, "POS-Setup.ini", SearchOption.AllDirectories);
 
-        foreach (var file in files) DecryptPasswordInFile(file);
+    protected virtual void Dispose(bool disposing)
+    {
+        //SuppressFinalize(this);
+        switch (_disposed)
+        {
+            case false:
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    // No managed resources to dispose in this case
+                    PosSetupIniContents = null;
+                    PosSetupIniContentsList = null;
+                    _drive = string.Empty;
+                }
+
+                // Dispose unmanaged resources
+
+                _disposed = true;
+                break;
+            }
+        }
     }
-    */
 
-    /*private void EncryptPasswordInFile(string filePath)
+    ~FileEncrypt()
     {
-        var fileContent = File.ReadAllText(filePath);
-        const string pattern = @"(?<=Password=).*?(?=\[Micros Settings\])";
-        var match = MyRegex().Match(fileContent);
-
-        if (!match.Success) return;
-        var password = match.Value.Trim();
-        var encryptedPassword = EncryptStringToBytes_Aes(password);
-
-        /*var encryptedPasswordString = Convert.ToBase64String(encryptedPassword);
-        var newFileContent = MyRegex().Replace(fileContent, encryptedPasswordString);#1#
-
-        File.WriteAllText(filePath, newFileContent);
-    }*/
+        bool disposed;
+        Deconstruct(out disposed);
+    }
 }

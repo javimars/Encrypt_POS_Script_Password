@@ -1,6 +1,6 @@
 ﻿namespace Encrypt_POS_Script_Password;
 
-public partial class POS_Setup_ini_Contents
+public partial class POS_Setup_ini_Contents : IDisposable
 {
     public POS_Setup_ini_Contents(string filePath)
     {
@@ -13,24 +13,42 @@ public partial class POS_Setup_ini_Contents
 
     public string? CurrentPassword { get; set; }
     public string? NewPassword { get; set; }
+    public string? EncryptedPassword { get; set; }
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion
+
+    [GeneratedRegex(@"(?<=\\MEMORY\\)(.*?)(?=\\POS-Setup.ini)")]
+    private static partial Regex RegexPatternFoldername1();
 
     public void SetFolderName()
     {
-        var match = RegexPatternFoldername().Match(FolderNamePath);
+        var match = RegexPatternFoldername1().Match(FolderNamePath);
         FolderName = match.Success ? match.Value : null;
     }
 
 
     private static string MatchFolderName(string filepath)
     {
-        var match = RegexPatternFoldername().Match(filepath);
+        var match = RegexPatternFoldername1().Match(filepath);
         return match.Success ? match.Value : null;
     }
 
     public override string ToString()
     {
         return
-            $"FolderName: {FolderName}\nFolderNamePath: {FolderNamePath}\nFileContent: {FileContent}\nCurrentPassword: {CurrentPassword}\nNewPassword: {NewPassword}";
+            $@"FolderName: {FolderName}
+FolderNamePath: {FolderNamePath}
+FileContent: {FileContent}
+CurrentPassword: {CurrentPassword}
+NewPassword: {NewPassword}";
     }
 
     public void LoadFileContent()
@@ -39,6 +57,25 @@ public partial class POS_Setup_ini_Contents
             FileContent = File.ReadAllText(FolderNamePath);
     }
 
-    [GeneratedRegex(@"(?<=\\MEMORY\\)(.*?)(?=\\POS-Setup.ini)")]
-    private static partial Regex RegexPatternFoldername();
+
+    private void ReleaseUnmanagedResources()
+    {
+        CurrentPassword = null;
+        EncryptedPassword = null;
+        FileContent = string.Empty;
+        FolderName = string.Empty;
+        FolderNamePath = string.Empty;
+        CurrentPassword = null;
+        EncryptedPassword = null;
+    }
+
+    protected void Dispose(bool disposing)
+    {
+        ReleaseUnmanagedResources();
+    }
+
+    ~POS_Setup_ini_Contents()
+    {
+        Dispose(false);
+    }
 }
